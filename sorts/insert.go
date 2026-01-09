@@ -44,7 +44,7 @@ func InsertionSort(file fs.DirEntry) {
 
 	fmt.Println("Sorting... (bar shows worst case scenario of operations)")
 
-	bar := progressbar.Default(int64(data.Len()) * int64(data.Len()))
+	bar := progressbar.Default(int64(data.Len()))
 
 	curr := data.Front().Next()
 	next := curr.Next()
@@ -58,14 +58,47 @@ func InsertionSort(file fs.DirEntry) {
 			next = curr.Next()
 			continue
 		}
+		// Both int
 		if reflect.ValueOf(curr.Value).Kind() == reflect.Int && reflect.ValueOf(curr.Prev().Value).Kind() == reflect.Int {
-			if curr.Value.(int) > curr.Prev().Value.(int) {
+			bar.Describe("Comparing int...")
+			if curr.Prev().Value.(int) < curr.Value.(int) {
 				curr = next
+				if curr == nil {
+					break
+				}
 				next = curr.Next()
+				bar.Add(1)
+				continue
 			} else {
-				data.Remove(curr)
-				data.InsertBefore(curr.Prev(), curr)
+				data.MoveAfter(curr.Prev(), curr)
+				continue
 			}
+		}
+
+		bar.Describe("Comparing string...")
+		strCurr := ""
+		if reflect.ValueOf(curr.Value).Kind() == reflect.Int {
+			strCurr = strconv.Itoa(curr.Value.(int))
+		} else {
+			strCurr = curr.Value.(string)
+		}
+		strPrev := ""
+		if reflect.ValueOf(curr.Prev().Value).Kind() == reflect.Int {
+			strPrev = strconv.Itoa(curr.Prev().Value.(int))
+		} else {
+			strPrev = curr.Prev().Value.(string)
+		}
+		if strPrev < strCurr {
+			curr = next
+			if curr == nil {
+				break
+			}
+			next = curr.Next()
+			bar.Add(1)
+			continue
+		} else {
+			data.MoveAfter(curr.Prev(), curr)
+			continue
 		}
 	}
 
