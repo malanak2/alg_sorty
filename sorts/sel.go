@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"strconv"
+	"time"
 
 	"github.com/schollz/progressbar/v3"
 )
@@ -42,8 +43,22 @@ func SelectionSort(file fs.DirEntry) {
 		fmt.Printf("error reading file: %s", err)
 	}
 
-	bar := progressbar.Default(int64(data.Len()))
-
+	bar := progressbar.NewOptions64(
+		int64(data.Len()),
+		progressbar.OptionSetDescription(""),
+		progressbar.OptionSetWriter(os.Stderr),
+		progressbar.OptionSetWidth(10),
+		progressbar.OptionShowTotalBytes(true),
+		progressbar.OptionThrottle(65*time.Millisecond),
+		progressbar.OptionShowCount(),
+		progressbar.OptionShowIts(),
+		progressbar.OptionOnCompletion(func() {
+			fmt.Fprint(os.Stderr, "\n")
+		}),
+		progressbar.OptionSpinnerType(14),
+		progressbar.OptionFullWidth(),
+		progressbar.OptionSetRenderBlankState(true),
+	)
 	for i := data.Front(); i != nil; i = i.Next() {
 		min := i
 		for j := i.Next(); j != nil; j = j.Next() {

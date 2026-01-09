@@ -50,31 +50,47 @@ func BubbleSort(file fs.DirEntry) {
 	for ran {
 		ran = false
 		for i := data.Front(); i != nil && i.Next() != nil; i = i.Next() {
-			if reflect.ValueOf(i.Value).Kind() == reflect.Int && reflect.ValueOf(i.Next().Value).Kind() == reflect.Int {
+			switch v := i.Value.(type) {
+			case int:
 				if i.Value.(int) > i.Next().Value.(int) {
 					i.Value, i.Next().Value = i.Next().Value, i.Value
 					ran = true
 				}
 				continue
-			}
-			strI := ""
-			if reflect.ValueOf(i.Value).Kind() == reflect.Int {
-				strI = strconv.Itoa(i.Value.(int))
-			} else {
-				strI = i.Value.(string)
-			}
-			strNext := ""
-			if reflect.ValueOf(i.Next().Value).Kind() == reflect.Int {
-				strNext = strconv.Itoa(i.Next().Value.(int))
-			} else {
-				strNext = i.Next().Value.(string)
-			}
-			if strI > strNext {
-				i.Value, i.Next().Value = i.Next().Value, i.Value
-				ran = true
+			case string:
+				strI := ""
+				switch w := i.Value.(type) {
+				case int:
+					strI = strconv.Itoa(i.Value.(int))
+				case string:
+					strI = i.Value.(string)
+				default:
+					fmt.Println("Unknown type:", reflect.TypeOf(w))
+					return
+				}
+
+				strNext := ""
+				switch w := i.Next().Value.(type) {
+				case string:
+					strNext = strconv.Itoa(i.Next().Value.(int))
+				case int:
+					strNext = i.Next().Value.(string)
+				default:
+					fmt.Println("Unknown type:", reflect.TypeOf(w))
+					return
+				}
+
+				if strI > strNext {
+					i.Value, i.Next().Value = i.Next().Value, i.Value
+					ran = true
+				}
+
+				bar.Add(1)
+			default:
+				fmt.Println("Unknown type:", reflect.TypeOf(v))
+				return
 			}
 		}
-		bar.Add(1)
 	}
 
 	output, err := os.Create(filepath.Join("./sorted_data/bubblesort_" + file.Name()))
