@@ -54,7 +54,6 @@ func InsertionSort(file fs.DirEntry) {
 			curr = next
 			if curr.Next() == nil {
 				break
-
 			}
 			next = curr.Next()
 			continue
