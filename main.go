@@ -76,5 +76,7 @@ func main() {
 		sorts.BubbleSort(file)
 	case '3':
 		sorts.InsertionSort(file)
+	case '4':
+		sorts.HeapSort(file)
 	}
 }

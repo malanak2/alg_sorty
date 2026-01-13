@@ -1,45 +1,20 @@
 package sorts
 
 import (
-	"bufio"
-	"container/list"
 	"fmt"
 	"io/fs"
-	"os"
-	"path/filepath"
 	"reflect"
 	"strconv"
 
+	"github.com/malanak2/alg_sorts/util"
 	"github.com/schollz/progressbar/v3"
 )
 
 func InsertionSort(file fs.DirEntry) {
-	data := list.New()
-	open, err := os.Open(filepath.Join("./data", file.Name()))
-	if err == nil {
-		defer open.Close()
-	} else {
-		fmt.Println("Error opening file")
-		return
-	}
-	// Create a new scanner to read the file line by line
-	scanner := bufio.NewScanner(open)
+	data, err := util.LoadFile(file)
 
-	// Loop through the file and read each line
-	for scanner.Scan() {
-		line := scanner.Text() // Get the line as a string
-		lineI, err := strconv.Atoi(line)
-		if err == nil {
-			data.PushBack(lineI)
-			continue
-		}
-		fmt.Printf("Non-integer value found, treating as string: %s\n", line)
-		data.PushBack(line)
-	}
-
-	// Check for errors during the scan
-	if err := scanner.Err(); err != nil {
-		fmt.Printf("error reading file: %s", err)
+	if err != nil {
+		panic(err)
 	}
 
 	fmt.Println("Sorting... (bar shows worst case scenario of operations)")
@@ -104,30 +79,6 @@ func InsertionSort(file fs.DirEntry) {
 
 	}
 
-	output, err := os.Create(filepath.Join("./sorted_data/insertionsort_" + file.Name()))
-	if err != nil {
-		fmt.Println("Error creating file")
-		return
-	}
-
-	writer := bufio.NewWriter(output)
-	for i := data.Front(); i != nil; i = i.Next() {
-		if reflect.ValueOf(i.Value).Kind() == reflect.Int {
-			_, err := writer.WriteString(strconv.Itoa(i.Value.(int)) + "\n")
-			if err != nil {
-				fmt.Println("Error writing to file")
-				return
-			}
-			continue
-		}
-		_, err := writer.WriteString(i.Value.(string) + "\n")
-		if err != nil {
-			fmt.Println("Error writing to file")
-			return
-		}
-	}
-	writer.Flush()
-	output.Close()
 	bar.Close()
-
+	util.SaveResult(data, file, "insertionsort")
 }
