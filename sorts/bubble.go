@@ -3,69 +3,42 @@ package sorts
 import (
 	"fmt"
 	"io/fs"
-	"reflect"
-	"strconv"
+	"time"
 
 	"github.com/malanak2/alg_sorts/util"
 	"github.com/schollz/progressbar/v3"
 )
 
-func BubbleSort(file fs.DirEntry) {
+func BubbleSort(file fs.DirEntry, doBar bool) time.Duration {
 	data, err := util.LoadFile(file)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Sorting... (bar shows worst case scenario of operations)")
+	fmt.Println("Sorting...")
+	time_s := time.Now()
+	var bar *progressbar.ProgressBar
+	if doBar {
 
-	bar := progressbar.Default(int64(data.Len()) * int64(data.Len()))
+		bar = progressbar.Default(int64(data.Len()))
+	}
 	ran := true
 
 	for ran {
 		ran = false
 		for i := data.Front(); i != nil && i.Next() != nil; i = i.Next() {
-			switch v := i.Value.(type) {
-			case int:
-				if i.Value.(int) > i.Next().Value.(int) {
-					i.Value, i.Next().Value = i.Next().Value, i.Value
-					ran = true
-				}
-				continue
-			case string:
-				strI := ""
-				switch w := i.Value.(type) {
-				case int:
-					strI = strconv.Itoa(i.Value.(int))
-				case string:
-					strI = i.Value.(string)
-				default:
-					fmt.Println("Unknown type:", reflect.TypeOf(w))
-					return
-				}
-
-				strNext := ""
-				switch w := i.Next().Value.(type) {
-				case string:
-					strNext = strconv.Itoa(i.Next().Value.(int))
-				case int:
-					strNext = i.Next().Value.(string)
-				default:
-					fmt.Println("Unknown type:", reflect.TypeOf(w))
-					return
-				}
-
-				if strI > strNext {
-					i.Value, i.Next().Value = i.Next().Value, i.Value
-					ran = true
-				}
-
-				bar.Add(1)
-			default:
-				fmt.Println("Unknown type:", reflect.TypeOf(v))
-				return
+			if 0 < util.Compare(i.Value, i.Next().Value) {
+				i.Value, i.Next().Value = i.Next().Value, i.Value
+				ran = true
 			}
 		}
+		if doBar {
+			bar.Add(1)
+		}
 	}
-	bar.Close()
+	if doBar {
+		bar.Close()
+	}
+	time_e := time.Now()
 	util.SaveResult(data, file, "bubblesort")
-
+	return time_e.Sub(time_s)
 }

@@ -3,23 +3,25 @@ package sorts
 import (
 	"fmt"
 	"io/fs"
-	"reflect"
-	"strconv"
+	"time"
 
 	"github.com/malanak2/alg_sorts/util"
 	"github.com/schollz/progressbar/v3"
 )
 
-func InsertionSort(file fs.DirEntry) {
+func InsertionSort(file fs.DirEntry, doBar bool) time.Duration {
 	data, err := util.LoadFile(file)
 
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println("Sorting... (bar shows worst case scenario of operations)")
-
-	bar := progressbar.Default(int64(data.Len()))
+	fmt.Println("Sorting...")
+	time_s := time.Now()
+	var bar *progressbar.ProgressBar
+	if doBar {
+		bar = progressbar.Default(int64(data.Len()))
+	}
 
 	curr := data.Front().Next()
 	next := curr.Next()
@@ -33,52 +35,26 @@ func InsertionSort(file fs.DirEntry) {
 			next = curr.Next()
 			continue
 		}
-		switch v := curr.Value.(type) {
-		case int:
-			if curr.Prev().Value.(int) < curr.Value.(int) {
-				curr = next
-				if curr == nil {
-					break
-				}
-				next = curr.Next()
+		if 0 > util.Compare(curr.Prev().Value, curr.Value) {
+			curr = next
+			if curr == nil {
+				break
+			}
+			next = curr.Next()
+			if doBar {
 				bar.Add(1)
-				continue
-			} else {
-				data.MoveAfter(curr.Prev(), curr)
-				continue
 			}
-		case string:
-			strCurr := ""
-			if reflect.ValueOf(curr.Value).Kind() == reflect.Int {
-				strCurr = strconv.Itoa(curr.Value.(int))
-			} else {
-				strCurr = curr.Value.(string)
-			}
-			strPrev := ""
-			if reflect.ValueOf(curr.Prev().Value).Kind() == reflect.Int {
-				strPrev = strconv.Itoa(curr.Prev().Value.(int))
-			} else {
-				strPrev = curr.Prev().Value.(string)
-			}
-			if strPrev < strCurr {
-				curr = next
-				if curr == nil {
-					break
-				}
-				next = curr.Next()
-				bar.Add(1)
-				continue
-			} else {
-				data.MoveAfter(curr.Prev(), curr)
-				continue
-			}
-		default:
-			fmt.Println("Unknown type:", reflect.TypeOf(v))
-			return
+			continue
+		} else {
+			data.MoveAfter(curr.Prev(), curr)
+			continue
 		}
-
 	}
 
-	bar.Close()
+	if doBar {
+		bar.Close()
+	}
+	time_e := time.Now()
 	util.SaveResult(data, file, "insertionsort")
+	return time_e.Sub(time_s)
 }

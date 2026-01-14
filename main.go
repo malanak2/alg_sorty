@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/malanak2/alg_sorts/sorts"
 	"github.com/malanak2/alg_sorts/util"
@@ -60,8 +61,7 @@ func main() {
 		return
 	}
 	term.Restore(int(os.Stdin.Fd()), oldState)
-
-	if b[0] > '7' || b[0] < '0' {
+	if b[0] > '8' || b[0] < '0' {
 		fmt.Println("\nInvalid option, exiting...")
 		return
 	}
@@ -69,14 +69,48 @@ func main() {
 		fmt.Println("\nExiting...")
 		return
 	}
+	fmt.Printf("\nYou selected file: %s\n", file.Name())
+	var timeItTook time.Duration
 	switch b[0] {
 	case '1':
-		sorts.SelectionSort(file)
+		timeItTook = sorts.SelectionSort(file, true)
 	case '2':
-		sorts.BubbleSort(file)
+		timeItTook = sorts.BubbleSort(file, true)
 	case '3':
-		sorts.InsertionSort(file)
+		timeItTook = sorts.InsertionSort(file, true)
 	case '4':
-		sorts.HeapSort(file)
+		timeItTook = sorts.HeapSort(file, true)
+	case '5':
+		timeItTook = sorts.MergeSort(file, true)
+	case '6':
+		timeItTook = sorts.QuickSort(file, true)
+	case '7':
+		timeItTook = sorts.RadixSort(file, true)
+	case '8':
+		timeSelection := make(chan time.Duration, 1)
+		timeBubble := make(chan time.Duration, 1)
+		timeInsertion := make(chan time.Duration, 1)
+		timeHeap := make(chan time.Duration, 1)
+		timeMerge := make(chan time.Duration, 1)
+		timeQuick := make(chan time.Duration, 1)
+		timeRadix := make(chan time.Duration, 1)
+		go util.SortAsync(sorts.SelectionSort, file, false, timeSelection)
+		go util.SortAsync(sorts.BubbleSort, file, false, timeBubble)
+		go util.SortAsync(sorts.InsertionSort, file, false, timeInsertion)
+		go util.SortAsync(sorts.HeapSort, file, false, timeHeap)
+		go util.SortAsync(sorts.MergeSort, file, false, timeMerge)
+		go util.SortAsync(sorts.QuickSort, file, false, timeQuick)
+		go util.SortAsync(sorts.RadixSort, file, false, timeRadix)
+
+		fmt.Printf("Radix sort: %s\n", <-timeRadix)
+		fmt.Printf("Quick sort: %s\n", <-timeQuick)
+		fmt.Printf("Merge sort: %s\n", <-timeMerge)
+		fmt.Printf("Heap sort: %s\n", <-timeHeap)
+		fmt.Printf("Insertion sort: %s\n", <-timeInsertion)
+		fmt.Printf("Selection sort: %s\n", <-timeSelection)
+		fmt.Printf("Bubble sort: %s\n", <-timeBubble)
+
+		fmt.Printf("\nAll sorts completed!\n")
 	}
+	fmt.Printf("\nSorting took %s\n", timeItTook)
 }

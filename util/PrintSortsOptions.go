@@ -11,5 +11,6 @@ func PrintSortsOptions() {
 	fmt.Println("5: Merge Sort")
 	fmt.Println("6: Quick Sort")
 	fmt.Println("7: Radix Sort")
+	fmt.Println("8: Run all sorts")
 	fmt.Println("0: Exit")
 }
