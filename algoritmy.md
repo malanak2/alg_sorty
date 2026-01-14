@@ -3,9 +3,9 @@
 
 ![](Aspose.Words.4bd26d61-ac7b-4bd9-bb3f-2af61c60bffe.001.png)
 # Selection Sort -- To run
-|Word 10M|~10s|x%|
+|Word 10M|5m|0.000139%|
 |-----------|------|------|
-|Int 10M|~30s|x%|
+|Int 10M|5m|0.0002917%|
 # Bubble Sort
 |Word 10M|5m|0.0001751%|
 |-----------|------|------|
