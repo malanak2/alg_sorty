@@ -22,7 +22,7 @@ func SelectionSort(file fs.DirEntry, doBar bool) time.Duration {
 	for i := data.Front(); i != nil; i = i.Next() {
 		min := i
 		for j := i.Next(); j != nil; j = j.Next() {
-			if 0 < util.Compare(i.Value, j.Value) {
+			if 0 < util.Compare(min.Value, j.Value) {
 				min = j
 			}
 			continue

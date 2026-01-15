@@ -18,7 +18,6 @@ func BubbleSort(file fs.DirEntry, doBar bool) time.Duration {
 	time_s := time.Now()
 	var bar *progressbar.ProgressBar
 	if doBar {
-
 		bar = progressbar.Default(int64(data.Len()))
 	}
 	ran := true

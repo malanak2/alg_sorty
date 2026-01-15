@@ -32,7 +32,12 @@ func RadixSort(file fs.DirEntry, doBar bool) time.Duration {
 
 	data := make([]int, len(dataA))
 	for i := range dataA {
-		data[i] = int(math.Round(dataA[i].(float64)))
+		switch v := dataA[i].(type) {
+		case float64:
+			data[i] = int(math.Round(v))
+		case string:
+			return -1
+		}
 	}
 
 	time_s := time.Now()
@@ -47,7 +52,7 @@ func RadixSort(file fs.DirEntry, doBar bool) time.Duration {
 		output := make([]int, n)
 		count := make([]int, 10)
 
-		for i := 0; i < n; i++ {
+		for i := range n {
 			index := (data[i] / exp) % 10
 			count[index]++
 		}

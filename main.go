@@ -86,6 +86,10 @@ func main() {
 		timeItTook = sorts.QuickSort(file, true)
 	case '7':
 		timeItTook = sorts.RadixSort(file, true)
+		if timeItTook == -1 {
+			fmt.Printf("File %s contains strings, switching to Radix String Sort...\n", file.Name())
+			timeItTook = sorts.RadixStringSort(file, true)
+		}
 	case '8':
 		timeSelection := make(chan time.Duration, 1)
 		timeBubble := make(chan time.Duration, 1)
